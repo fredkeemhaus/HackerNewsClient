@@ -1,0 +1,19 @@
+// strict: 타입스크립트의 기능을 얼마나 엄격하게 사용하겠느냐,
+// noImplicitAny: strict 밑에 하위 기본적으로 타입을 any를 하느냐 마느냐, true: 정확히 타입 지정 필요.
+// sourceMap
+// target: ES5 버전을 사용하겠다.
+// module: CommonJS
+// sourceMap:
+
+{
+  "compilerOptions": {
+    "strict": true,
+    "target": "ES5",
+    "module": "CommonJS",
+    "alwaysStrict": true,
+    "noImplicitAny": true,
+    "noImplicitThis": true,
+    "sourceMap": true,
+    "downlevelIteration": true
+  }
+}

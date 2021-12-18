@@ -13,7 +13,7 @@ JavaScript practice.
 
 ---
 
-## 순서
+## JavaScript 순서
 
 - [x] 12줄의 코드로 시작하기
 - [x] 두 개의 화면을 가진 웹앱
@@ -23,3 +23,10 @@ JavaScript practice.
 - [x] UI구현
 - [x] 댓글 목록 표시
 - [x] 읽은 글 표시하기
+
+## TypeScript
+
+### Migration to TypeScript.
+
+- [] 타입스크립트를 위한 환경설정
+- [] 변수에 타입 작성하기
