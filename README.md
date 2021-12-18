@@ -28,5 +28,5 @@ JavaScript practice.
 
 ### Migration to TypeScript.
 
-- [] 타입스크립트를 위한 환경설정
-- [] 변수에 타입 작성하기
+- [x] 타입스크립트를 위한 환경설정
+- [x] 변수에 타입 작성하기
