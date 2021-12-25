@@ -129,11 +129,59 @@ var store = {
   feeds: []
 };
 
-function getData(url) {
-  ajax.open("GET", url, false);
-  ajax.send();
-  return JSON.parse(ajax.response);
+function applyApiMixins(targetClass, baseClasses) {
+  baseClasses.forEach(function (baseClass) {
+    Object.getOwnPropertyNames(baseClass.prototye).forEach(function (name) {
+      var descriptor = Object.getOwnPropertyDescriptor(baseClass.prototyoe, name);
+
+      if (descriptor) {
+        Object.defineProperty(targetClass.prototye, name, descriptor);
+      }
+    });
+  });
 }
+
+var Api =
+/** @class */
+function () {
+  function Api() {}
+
+  Api.prototype.getRequest = function (url) {
+    var ajax = new XMLHttpRequest();
+    ajax.open("GET", url, false);
+    ajax.send();
+    return JSON.parse(ajax.response);
+  };
+
+  return Api;
+}();
+
+var NewsFeedApi =
+/** @class */
+function () {
+  function NewsFeedApi() {}
+
+  NewsFeedApi.prototype.getData = function () {
+    return this.getRequest(NEWS_URL);
+  };
+
+  return NewsFeedApi;
+}();
+
+var NewsDetailApi =
+/** @class */
+function () {
+  function NewsDetailApi() {}
+
+  NewsDetailApi.prototype.getData = function (id) {
+    return this.getRequest(CONTENT_URL.replace("@id", id));
+  };
+
+  return NewsDetailApi;
+}();
+
+applyApiMixins(NewsFeedApi, [Api]);
+applyApiMixins(NewsDetailApi, [Api]);
 
 function makeFeeds(feeds) {
   for (var i = 0; i < feeds.length; i++) {
@@ -152,12 +200,13 @@ function updateView(html) {
 }
 
 function newsFeed() {
+  var api = new NewsFeedApi();
   var newsFeed = store.feeds;
   var newsList = [];
   var template = "\n    <div class=\"bg-gray-600 min-h-screen\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/{{__prev_page__}}\" class=\"text-gray-500\">\n                Previous\n              </a>\n              <a href=\"#/page/{{__next_page__}}\" class=\"text-gray-500 ml-4\">\n                Next\n              </a>\n            </div>\n          </div> \n        </div>\n      </div>\n      <div class=\"p-4 text-2xl text-gray-700\">\n        {{__news_feed__}}        \n      </div>\n    </div>\n  ";
 
   if (newsFeed.length === 0) {
-    newsFeed = store.feeds = makeFeeds(getData(NEWS_URL));
+    newsFeed = store.feeds = makeFeeds(api.getData());
   }
 
   for (var i = (store.currentPage - 1) * 10; i < store.currentPage * 10; i++) {
@@ -172,8 +221,9 @@ function newsFeed() {
 
 function newsDetail() {
   var id = location.hash.substr(7);
-  var newsContent = getData(CONTENT_URL.replace("@id", id));
-  var template = "\n    <div class=\"bg-gray-600 min-h-screen pb-8\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/".concat(store.currentPage, "\" class=\"text-gray-500\">\n                <i class=\"fa fa-times\"></i>\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n        <h2>").concat(newsContent.title, "</h2>\n        <div class=\"text-gray-400 h-20\">\n          ").concat(newsContent.content, "\n        </div>\n\n        {{__comments__}}\n\n      </div>\n    </div>\n  ");
+  var api = new NewsDetailApi();
+  var newsDetail = api.getData(id);
+  var template = "\n    <div class=\"bg-gray-600 min-h-screen pb-8\">\n      <div class=\"bg-white text-xl\">\n        <div class=\"mx-auto px-4\">\n          <div class=\"flex justify-between items-center py-6\">\n            <div class=\"flex justify-start\">\n              <h1 class=\"font-extrabold\">Hacker News</h1>\n            </div>\n            <div class=\"items-center justify-end\">\n              <a href=\"#/page/".concat(store.currentPage, "\" class=\"text-gray-500\">\n                <i class=\"fa fa-times\"></i>\n              </a>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div class=\"h-full border rounded-xl bg-white m-6 p-4 \">\n        <h2>").concat(newsDetail.title, "</h2>\n        <div class=\"text-gray-400 h-20\">\n          ").concat(newsDetail.content, "\n        </div>\n\n        {{__comments__}}\n\n      </div>\n    </div>\n  ");
 
   for (var i = 0; i < store.feeds.length; i++) {
     if (store.feeds[i].id === Number(id)) {
@@ -182,7 +232,7 @@ function newsDetail() {
     }
   }
 
-  updateView(template.replace("{{__comments__}}", makeComment(newsContent.comments)));
+  updateView(template.replace("{{__comments__}}", makeComment(newsDetail.comments)));
 }
 
 function makeComment(comments) {
@@ -243,7 +293,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59366" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59019" + '/');
 
   ws.onmessage = function (event) {
     checkedAssets = {};
