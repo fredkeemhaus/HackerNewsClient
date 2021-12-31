@@ -79,6 +79,10 @@ interface NewsDetailApi extends Api {}
 applyApiMixins(NewsFeedApi, [Api]);
 applyApiMixins(NewsDetailApi, [Api]);
 
+class NewsFeedView {
+  constructor() {}
+}
+
 function makeFeeds(feeds: NewsFeed[]): NewsFeed[] {
   for (let i = 0; i < feeds.length; i++) {
     feeds[i].read = false;
